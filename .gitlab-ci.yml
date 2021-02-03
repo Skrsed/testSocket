@@ -1,0 +1,14 @@
+stages:
+  - build
+build taxi-teltonika-server:
+  stage: build
+  only:
+   - master
+  tags:
+   - build-teltonika-server
+  script:
+   - whoami
+   - rm -rf vendor
+   - composer install
+   - cp -R ./* /var/www/phpTeltonikaParser
+   - supervisorctl restart teltonikaServer
