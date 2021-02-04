@@ -21,7 +21,7 @@ class IOData implements \JsonSerializable
      * @param $ID
      * @param $value
      */
-    public function __construct($eventID, $elementCount, $ID, $value)
+    public function __construct($eventID = null, $elementCount = null, $ID, $value)
     {
         $this->eventID = $eventID;
         $this->elementCount = $elementCount;

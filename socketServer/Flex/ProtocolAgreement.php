@@ -59,7 +59,7 @@ class ProtocolAgreement {
 
     public function getBitfieldArray(): array
     {
-        return str_split($this->hex2binR(bin2hex($this->getBitfield())));
+        return str_split($this->convBase(strtoupper(bin2hex($this->getBitfield())), '0123456789ABCDEF', '01'));
     }
 
     public static function is($data): bool
@@ -92,19 +92,46 @@ class ProtocolAgreement {
         return $this->getDataSizeShift() + self::DATA_SIZE_LENGTH;
     }
 
-    private function hex2binR($hex) {
-        $table = ['0000', '0001', '0010', '0011', 
-                  '0100', '0101', '0110', '0111',
-                  '1000', '1001', '1010', 'a' => '1011', 
-                  'b' => '1100', 'c' => '1101', 'e' => '1110', 
-                  'f' => '1111'];
-        $bin = '';
-    
-        for($i = 0; $i < strlen($hex); $i++) {
-            $bin .= $table[strtolower(substr($hex, $i, 1))];
+    /**
+     * From https://www.php.net/manual/en/function.base-convert.php
+     * function was realized by PHPCoder@niconet2k.com
+     */
+    private function convBase($numberInput, $fromBaseInput, $toBaseInput) {
+        if ($fromBaseInput == $toBaseInput) {
+
+            return $numberInput;
         }
-    
-        return $bin;
+        $fromBase = str_split($fromBaseInput,1);
+        $toBase = str_split($toBaseInput,1);
+        $number = str_split($numberInput,1);
+        $fromLen=strlen($fromBaseInput);
+        $toLen=strlen($toBaseInput);
+        $numberLen=strlen($numberInput);
+        $retval='';
+
+        if ($toBaseInput == '0123456789') {
+            $retval=0;
+            for ($i = 1;$i <= $numberLen; $i++)
+                $retval = bcadd($retval, bcmul(array_search($number[$i-1], $fromBase),bcpow($fromLen,$numberLen-$i)));
+
+            return $retval;
+        }
+        if ($fromBaseInput != '0123456789') {
+            $base10= $this->convBase($numberInput, $fromBaseInput, '0123456789');
+        }
+        else {
+            $base10 = $numberInput;
+        }
+        if ($base10<strlen($toBaseInput)) {
+
+            return $toBase[$base10];
+        }
+        while($base10 != '0') {
+            $retval = $toBase[bcmod($base10,$toLen)].$retval;
+            $base10 = bcdiv($base10,$toLen,0);
+        }
+
+        return $retval;
     }
 
 }

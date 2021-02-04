@@ -18,6 +18,7 @@ use app\socketServer\Flex\TPack;
 use app\socketServer\Flex\APack;
 use app\socketServer\Flex\HeadGenerator;
 use app\socketServer\Flex\TelemetricDecoder;
+use app\socketServer\Flex\FlexToAVLConvertor;
 
 use app\socketServer\Logger;
 #endregion
@@ -78,7 +79,6 @@ class GeoConnection extends AbstractConnection implements SubscribeInterface
         }
 
         if (APack::is($data)) {
-            var_dump(bin2hex($data));
             return $this->aPackCase($data);
         }
 
@@ -103,9 +103,9 @@ class GeoConnection extends AbstractConnection implements SubscribeInterface
     {
         $pa = new ProtocolAgreement($data);
         $bitmask = $pa->getBitfieldArray();
+
         $this->_telemetricDecoder->setMaskedParams($bitmask);
-        // var_dump(bin2hex($pa->getProtocolVer()));
-        var_dump(bin2hex($pa->getStructVer()));
+
         $this->connection->write($pa->getAnswer());
     }
 
@@ -118,12 +118,15 @@ class GeoConnection extends AbstractConnection implements SubscribeInterface
     public function aPackCase($data): void
     {
         $ap = new APack($data);
-        (bin2hex($data));
-        ($ap->getType());
-        var_dump($this->_telemetricDecoder->decode($ap->getPayload(), hexdec(bin2hex($ap->getSize()))));
-        //var_dump(bin2hex($ap->getAnswer()));
-        // $this->connection->write($ap->getAnswer());
+        $decoded = $this->_telemetricDecoder->decode($ap->getPayload(), hexdec(bin2hex($ap->getSize())));
+
+        $convertor = new FlexToAVLConvertor();
+        $avlData = [];
+        foreach ($decoded as $record) {
+            $avlData[] = $convertor->convert($this->getImei(), $record);
+        }
         
+        var_dump($avlData);
         
         /*
         Так можно отправлять команды

@@ -40,9 +40,6 @@ class GeoSocket
             $geoConnection->copyState($oldConnection);
         }
 
-        // var_dump(array_keys($this->connections));
-        // var_dump(array_keys($this->unresolvedConnections));
-
         $this->connections[$imei] = $geoConnection;
         unset($this->unresolvedConnections[$id]);
     }
@@ -80,22 +77,5 @@ class GeoSocket
     public function removeConnection($imei)
     {
         unset($this->connections[$imei]);
-    }
-    public function sendCodec12Data($command, $imei)
-    {
-        $connection = $this->findByImei($imei);
-        if (!$connection) {
-            $this->emitCodec12Answer(null, 'process answer',  (object)['answer' =>
-                "Ошибка при отправке: нет соеденинения с датчиком."
-            ]);
-            return;
-        }
-        Logger::note('Connection for ' . $connection->getImei()->getImeiNumber() . ' was finded, emiting now');
-        $connection->sendCodec12Data($command, $imei);
-    }
-
-    public function emitCodec12Answer($sender, $event, $args)
-    {
-        $this->mediator->emit($sender, $event, $args);
     }
 }

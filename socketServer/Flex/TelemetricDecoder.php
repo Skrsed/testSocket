@@ -24,7 +24,6 @@ class TelemetricDecoder {
                 $this->_maskedParams[] = array_merge($paramRecord, ['bitmaskVal' => $v, 'bitmaskId' => $i + 1]);
             }
         }
-        var_dump($this->bitmask);
     }
 
     public function getMaskedParams(): ?array
@@ -37,38 +36,45 @@ class TelemetricDecoder {
         $hexData = bin2hex($data);
         $shift = 0;
         $res = [];
-        var_dump($this->_maskedParams);
-        var_dump($hexData);
+
         foreach (range(0, $size - 1) as $i) {
             $packData = [];
             foreach ($this->_maskedParams as $param) {
-                // var_dump($param);
+
                 $len = $param['length'] * 2;
                 $rawValue = mb_substr($hexData, $shift, $len);
-                
+
                 $binVal = hex2bin($rawValue);
 
                 switch ($param['type']) {
                     case 'Float':
-                        $packData[$param['alias']] = $rawValue;
+                        $decoded = unpack('G', strrev(hex2bin($rawValue)))[1];
                         break;
                     case 'U8':
-                        $packData[$param['alias']] = $rawValue;
+                        $decoded = hexdec(bin2hex(strrev(hex2bin($rawValue))));
                         break;
                     case 'U16':
-                        $packData[$param['alias']] = $rawValue;
+                        $decoded = hexdec(bin2hex(strrev(hex2bin($rawValue))));
                         break;
                     case 'U32':
-                        $packData[$param['alias']] = $rawValue;
+                        $decoded = hexdec(bin2hex(strrev(hex2bin($rawValue))));
                         break;
                     case 'I32':
-                        $packData[$param['alias']] = $rawValue;
+                        $decoded = hexdec(bin2hex(strrev(hex2bin($rawValue))));
                         break;
                 }
-                // var_dump($rawValue);
+                $packData[$param['alias']] = $decoded;
+
+                if ($param['multiplier']) {
+                    $packData[$param['alias']] *= $param['multiplier'];
+                }
+
+                if ($param['intmultiplier']) {
+                    $packData[$param['alias']] *= $param['intmultiplier'];
+                }
                 $shift += $len;
             }
-            // $shift += $len; // ?
+
             $res[] = [
                 'packNumber' => $i,
                 'packData' => $packData

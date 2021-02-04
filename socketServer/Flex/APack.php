@@ -39,8 +39,6 @@ class APack {
 
     public function getPayload()
     {
-        var_dump(strlen($this->data) . ' - ' . (self::TYPE_LENGTH + self::SIZE_LENGTH + self::CRC8_LENGTH));
-
         return hex2bin(mb_substr($this->data, self::TYPE_LENGTH + self::SIZE_LENGTH,
             strlen($this->data) - (self::TYPE_LENGTH + self::SIZE_LENGTH + self::CRC8_LENGTH)
         ));
