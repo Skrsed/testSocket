@@ -25,16 +25,3 @@ FMBxx_%%last 7 chars of imei%%
 
 
 # How to use
-First: create appConfig.json, you may use something like bottom bellow: \
-file://appConfig.json
-```
-{
-    "geo_host": "17.10.10.8",
-    "geo_port": "19737",
-    "controll_host": "127.0.0.1",
-    "controll_port": "19736",
-    "db_user": "taxi",
-    "db_pass": "taxi",
-    "db_name": "taxi",
-    "db_host": "127.0.0.1"
-}
